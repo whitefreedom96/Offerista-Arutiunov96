@@ -1,0 +1,39 @@
+version: '3'
+services:
+  rabbitmq:
+    image: rabbitmq:3.8
+    ports:
+      - "5672:5672" 
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - mynetwork
+
+  producer:
+    build:
+      context: ./numbers-producer 
+    ports:
+      - "8080:8080" 
+    depends_on:
+      - rabbitmq
+    volumes:
+      - ./numbers-producer/volume:/boot  # Map the /boot directory to the host
+    networks:
+      - mynetwork
+
+  consumer:
+    build:
+      context: ./numbers-consumer 
+    ports:
+      - "8081:8081" 
+    depends_on:
+      - rabbitmq
+    volumes:
+      - ./numbers-consumer/volume:/boot  # Map the /boot directory to the host
+    networks:
+      - mynetwork
+networks:
+  mynetwork:
+    driver: bridge
